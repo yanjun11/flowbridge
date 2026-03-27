@@ -5,7 +5,7 @@
 ## 功能特性
 
 - 🔗 飞书多维表格触发器
-- 📢 企业微信群通知
+- 📢 飞书机器人通知 + 企业微信群通知
 - 🔄 可扩展的插件架构
 - 📊 完整的执行记录追踪
 - 🔒 Webhook 签名验证（HMAC-SHA256 + 时间戳防重放）
@@ -56,7 +56,32 @@ python main.py
 
 ## API 使用示例
 
-### 创建工作流
+### 示例 1: 飞书表格 → 飞书群通知
+
+```bash
+curl -X POST http://localhost:8000/api/workflows \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "飞书表格新增通知",
+    "trigger_type": "feishu_bitable",
+    "trigger_config": {
+      "app_id": "cli_xxx",
+      "app_secret": "xxx"
+    },
+    "actions": [
+      {
+        "type": "feishu_notify",
+        "config": {
+          "webhook_url": "https://open.feishu.cn/open-apis/bot/v2/hook/xxx",
+          "message": "新增记录：{{trigger.record_name}}",
+          "msg_type": "text"
+        }
+      }
+    ]
+  }'
+```
+
+### 示例 2: 飞书表格 → 企微群通知
 
 ```bash
 curl -X POST http://localhost:8000/api/workflows \
@@ -73,7 +98,7 @@ curl -X POST http://localhost:8000/api/workflows \
         "type": "wecom_notify",
         "config": {
           "webhook_url": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxx",
-          "message_template": "新增记录：{{trigger.name}}"
+          "message": "新增记录：{{trigger.name}}"
         }
       }
     ]

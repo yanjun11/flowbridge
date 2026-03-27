@@ -6,6 +6,7 @@ from typing import Dict, Optional
 
 from src.plugins.base import ActionPlugin, TriggerPlugin
 from src.plugins.trigger.feishu_bitable import FeishuBitableTrigger
+from src.plugins.action.feishu_notify import FeishuNotifyAction
 from src.plugins.action.wecom_notify import WecomNotifyAction
 
 logger = logging.getLogger(__name__)
@@ -47,6 +48,8 @@ class PluginManager:
             self.register_trigger(FeishuBitableTrigger())
         if "wecom_notify" not in self._actions:
             self.register_action(WecomNotifyAction())
+        if "feishu_notify" not in self._actions:
+            self.register_action(FeishuNotifyAction())
 
     _triggers: Dict[str, TriggerPlugin]
     _actions: Dict[str, ActionPlugin]
