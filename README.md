@@ -6,6 +6,7 @@
 
 - 🔗 飞书多维表格触发器
 - 📢 飞书机器人通知 + 企业微信群通知
+- 🌐 HTTP 请求动作（调用任意后端 API）
 - 🔄 可扩展的插件架构
 - 📊 完整的执行记录追踪
 - 🔒 Webhook 签名验证（HMAC-SHA256 + 时间戳防重放）
@@ -99,6 +100,38 @@ curl -X POST http://localhost:8000/api/workflows \
         "config": {
           "webhook_url": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxx",
           "message": "新增记录：{{trigger.name}}"
+        }
+      }
+    ]
+  }'
+```
+
+### 示例 3: 飞书表格 → 调用后端 API
+
+```bash
+curl -X POST http://localhost:8000/api/workflows \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "飞书表格触发补偿",
+    "trigger_type": "feishu_bitable",
+    "trigger_config": {
+      "app_id": "cli_xxx",
+      "app_secret": "xxx"
+    },
+    "actions": [
+      {
+        "type": "http_request",
+        "config": {
+          "url": "http://admin-backend/api/compensate",
+          "method": "POST",
+          "headers": {
+            "Authorization": "Bearer {{env.API_TOKEN}}"
+          },
+          "body": {
+            "user_id": "{{trigger.user_id}}",
+            "amount": "{{trigger.amount}}"
+          },
+          "allow_internal": true
         }
       }
     ]
