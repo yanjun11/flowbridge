@@ -37,6 +37,7 @@ pip install -e .
 ```env
 DATABASE_URL=postgres://user:password@localhost:5432/flowbridge
 REDIS_URL=redis://localhost:6379/0
+API_KEY=your_api_key
 FEISHU_WEBHOOK_SECRET=your_feishu_secret
 ```
 
@@ -62,6 +63,7 @@ python main.py
 ```bash
 curl -X POST http://localhost:8000/api/workflows \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
   -d '{
     "name": "飞书表格新增通知",
     "trigger_type": "feishu_bitable",
@@ -87,6 +89,7 @@ curl -X POST http://localhost:8000/api/workflows \
 ```bash
 curl -X POST http://localhost:8000/api/workflows \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
   -d '{
     "name": "飞书表格同步到企微",
     "trigger_type": "feishu_bitable",
@@ -111,6 +114,7 @@ curl -X POST http://localhost:8000/api/workflows \
 ```bash
 curl -X POST http://localhost:8000/api/workflows \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
   -d '{
     "name": "飞书表格触发补偿",
     "trigger_type": "feishu_bitable",
@@ -184,11 +188,11 @@ flowbridge/
 - ✅ 企微通知动作
 - ✅ 工作流执行引擎
 - ✅ API 端点（webhook + CRUD）
+- ✅ API 身份认证（X-API-Key 鉴权）
 - ✅ 安全加固（签名验证、SSRF 防护、事件去重）
+- ✅ 单元测试覆盖（核心模块）
 
 **待完成：**
-- ⏳ API 身份认证
 - ⏳ 更多触发器（飞书审批、日历）
 - ⏳ 更多动作（飞书消息、文档更新）
 - ⏳ Web UI 管理界面
-- ⏳ 单元测试覆盖

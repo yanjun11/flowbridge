@@ -1,15 +1,16 @@
 """工作流管理 API"""
 from typing import List
 from uuid import UUID
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from src.schema import WorkflowCreate, WorkflowUpdate, WorkflowResponse, BaseResponse
 from src.dao.orm.model import Workflow
+from src.api.auth import verify_api_key
 
 router = APIRouter(prefix="/workflows", tags=["workflows"])
 
 
 @router.post("", response_model=WorkflowResponse)
-async def create_workflow(data: WorkflowCreate):
+async def create_workflow(data: WorkflowCreate, _: None = Depends(verify_api_key)):
     """创建工作流"""
     workflow = await Workflow.create(
         name=data.name,
@@ -22,7 +23,7 @@ async def create_workflow(data: WorkflowCreate):
 
 
 @router.get("", response_model=List[WorkflowResponse])
-async def list_workflows(status: str = None):
+async def list_workflows(status: str = None, _: None = Depends(verify_api_key)):
     """列出工作流"""
     query = Workflow.all()
     if status:
@@ -32,7 +33,7 @@ async def list_workflows(status: str = None):
 
 
 @router.get("/{workflow_id}", response_model=WorkflowResponse)
-async def get_workflow(workflow_id: UUID):
+async def get_workflow(workflow_id: UUID, _: None = Depends(verify_api_key)):
     """获取工作流详情"""
     workflow = await Workflow.get_or_none(id=workflow_id)
     if not workflow:
@@ -41,7 +42,7 @@ async def get_workflow(workflow_id: UUID):
 
 
 @router.put("/{workflow_id}", response_model=WorkflowResponse)
-async def update_workflow(workflow_id: UUID, data: WorkflowUpdate):
+async def update_workflow(workflow_id: UUID, data: WorkflowUpdate, _: None = Depends(verify_api_key)):
     """更新工作流"""
     workflow = await Workflow.get_or_none(id=workflow_id)
     if not workflow:
@@ -53,7 +54,7 @@ async def update_workflow(workflow_id: UUID, data: WorkflowUpdate):
 
 
 @router.delete("/{workflow_id}", response_model=BaseResponse)
-async def delete_workflow(workflow_id: UUID):
+async def delete_workflow(workflow_id: UUID, _: None = Depends(verify_api_key)):
     """删除工作流"""
     workflow = await Workflow.get_or_none(id=workflow_id)
     if not workflow:

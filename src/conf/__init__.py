@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     # 日志
     log_level: str = "INFO"
 
+    # API 鉴权
+    api_key: str = "dev-api-key"
+
     # CORS
     cors_origins: List[str] = ["*"]
 
