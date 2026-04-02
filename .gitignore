@@ -20,31 +20,30 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
+# Virtual environments
 venv/
 ENV/
 env/
+.venv/
 
 # IDE
-.vscode/
 .idea/
+.vscode/
 *.swp
 *.swo
-*~
 
 # Environment
 .env
 .env.local
-
-# Database
-*.db
-*.sqlite3
+.env.*.local
 
 # Logs
 *.log
 
-# Aerich
-migrations/
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
 
-# Session exports
-session.md
+# mypy
+.mypy_cache/

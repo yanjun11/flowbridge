@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flowbridge-service
+  namespace: backend
+  labels:
+    app.kubernetes.io/name: flowbridge-service
+    app.kubernetes.io/component: api
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: flowbridge.backend.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: flowbridge-service
+                port:
+                  number: 80

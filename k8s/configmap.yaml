@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flowbridge-service-config
+  namespace: backend
+  labels:
+    app.kubernetes.io/name: flowbridge-service
+    app.kubernetes.io/component: api
+data:
+  HOST: "0.0.0.0"
+  PORT: "8000"
+  DEBUG: "false"
+  LOG_LEVEL: "INFO"
+  FEISHU_APP_ID: ""

@@ -1,0 +1,11 @@
+include:
+  - project: "devops/gitlab-ci"
+    ref: main
+    file: "templates/python-pipeline-with-env-mr.yml"
+
+variables:
+  APP_NAME: "flowbridge"
+  BUILD_DIR: "."
+  SONARQUBE: "false"
+  UNITTEST: "false"
+  LLM_CODE_REVIEW: "false"
