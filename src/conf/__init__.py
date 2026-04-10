@@ -1,5 +1,5 @@
 """配置管理模块"""
-import os
+
 from typing import List
 
 from pydantic_settings import BaseSettings
@@ -26,6 +26,9 @@ class Settings(BaseSettings):
 
     # 企微配置
     wecom_webhook_url: str = ""
+
+    # 告警配置
+    alert_webhook_url: str = ""
 
     # 日志
     log_level: str = "INFO"

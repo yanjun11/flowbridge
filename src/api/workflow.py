@@ -1,10 +1,14 @@
 """工作流管理 API"""
+
 from typing import List
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
-from src.schema import WorkflowCreate, WorkflowUpdate, WorkflowResponse, BaseResponse
-from src.dao.orm.model import Workflow
+
 from src.api.auth import verify_api_key
+from src.dao.orm.model import Workflow
+from src.schema import BaseResponse, WorkflowCreate, WorkflowResponse, WorkflowUpdate
+from src.service.scheduler import CronScheduler
 
 router = APIRouter(prefix="/workflows", tags=["workflows"])
 
@@ -19,6 +23,8 @@ async def create_workflow(data: WorkflowCreate, _: None = Depends(verify_api_key
         trigger_config=data.trigger_config,
         actions=data.actions,
     )
+    if workflow.trigger_type == "cron":
+        CronScheduler().add_workflow(workflow)
     return await WorkflowResponse.from_tortoise_orm(workflow)
 
 
@@ -48,8 +54,16 @@ async def update_workflow(workflow_id: UUID, data: WorkflowUpdate, _: None = Dep
     if not workflow:
         raise HTTPException(status_code=404, detail="Workflow not found")
 
+    old_trigger_type = workflow.trigger_type
+    old_status = workflow.status
     update_data = data.model_dump(exclude_unset=True)
     await workflow.update_from_dict(update_data).save()
+    if old_trigger_type == "cron" and (
+        workflow.trigger_type != "cron" or (old_status == "active" and workflow.status != "active")
+    ):
+        CronScheduler().remove_workflow(workflow.id)
+    elif workflow.trigger_type == "cron" and workflow.status == "active":
+        CronScheduler().update_workflow(workflow)
     return await WorkflowResponse.from_tortoise_orm(workflow)
 
 
@@ -59,5 +73,7 @@ async def delete_workflow(workflow_id: UUID, _: None = Depends(verify_api_key)):
     workflow = await Workflow.get_or_none(id=workflow_id)
     if not workflow:
         raise HTTPException(status_code=404, detail="Workflow not found")
+    if workflow.trigger_type == "cron":
+        CronScheduler().remove_workflow(workflow.id)
     await workflow.delete()
     return BaseResponse(success=True, message="Workflow deleted")

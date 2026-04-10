@@ -1,4 +1,5 @@
 """通用 HTTP 请求动作"""
+
 import logging
 from typing import Any, Dict
 

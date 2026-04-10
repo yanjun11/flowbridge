@@ -1,4 +1,5 @@
 """模板渲染工具"""
+
 import html
 import re
 from typing import Any, Dict

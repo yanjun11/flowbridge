@@ -1,4 +1,5 @@
 """插件基类定义"""
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, Optional

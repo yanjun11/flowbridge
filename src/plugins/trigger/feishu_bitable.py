@@ -1,4 +1,5 @@
 """飞书多维表格触发器"""
+
 import base64
 import hashlib
 import hmac
@@ -60,6 +61,7 @@ class FeishuBitableTrigger(TriggerPlugin):
                 return False
 
             from src.conf import settings
+
             secret = settings.feishu_webhook_secret
             if not secret:
                 return False

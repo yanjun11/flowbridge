@@ -1,4 +1,5 @@
 """企微群通知动作"""
+
 import ipaddress
 import logging
 import socket

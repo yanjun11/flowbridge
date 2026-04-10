@@ -1,12 +1,14 @@
 """Webhook 接收端点"""
+
 import json
 import logging
 
-from fastapi import APIRouter, Request, HTTPException
-from src.service.plugin_manager import PluginManager
+from fastapi import APIRouter, HTTPException, Request
+
+from src.dao.orm.model import Workflow
 from src.service.cache import check_and_set_processed
 from src.service.executor import WorkflowExecutor
-from src.dao.orm.model import Workflow
+from src.service.plugin_manager import PluginManager
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
 logger = logging.getLogger(__name__)
@@ -49,14 +51,15 @@ async def feishu_bitable_webhook(request: Request):
             return {"message": "Duplicate event ignored"}
 
     # 查找匹配的工作流
-    workflows = await Workflow.filter(
-        trigger_type="feishu_bitable",
-        status="active"
-    ).all()
+    workflows = await Workflow.filter(trigger_type="feishu_bitable", status="active").all()
 
     # 执行所有匹配的工作流
     executor = WorkflowExecutor()
     for workflow in workflows:
+        logger.info(
+            "Dispatching matched feishu_bitable workflow",
+            extra={"workflow_id": str(workflow.id)},
+        )
         await executor.execute(workflow.id, trigger_data)
 
     return {"message": "OK", "workflows_triggered": len(workflows)}
@@ -99,22 +102,22 @@ async def feishu_approval_webhook(request: Request):
             return {"message": "Duplicate event ignored"}
 
     # 查找匹配的工作流
-    workflows = await Workflow.filter(
-        trigger_type="feishu_approval",
-        status="active"
-    ).all()
+    workflows = await Workflow.filter(trigger_type="feishu_approval", status="active").all()
 
     approval_code = trigger_data.get("approval_code")
     matched_workflows = [
         workflow
         for workflow in workflows
-        if isinstance(workflow.trigger_config, dict)
-        and workflow.trigger_config.get("approval_code") == approval_code
+        if isinstance(workflow.trigger_config, dict) and workflow.trigger_config.get("approval_code") == approval_code
     ]
 
     # 执行所有匹配的工作流
     executor = WorkflowExecutor()
     for workflow in matched_workflows:
+        logger.info(
+            "Dispatching matched feishu_approval workflow",
+            extra={"workflow_id": str(workflow.id)},
+        )
         await executor.execute(workflow.id, trigger_data)
 
     return {"message": "OK", "workflows_triggered": len(matched_workflows)}

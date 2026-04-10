@@ -1,5 +1,7 @@
 """Redis 缓存工具"""
+
 import redis.asyncio as redis
+
 from src.conf import settings
 
 _redis_client = None

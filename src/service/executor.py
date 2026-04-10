@@ -1,4 +1,5 @@
 """工作流执行引擎。"""
+
 from __future__ import annotations
 
 import asyncio
@@ -9,6 +10,7 @@ from typing import Any, Dict
 from uuid import UUID
 
 from src.dao.orm.model import ActionExecution, Workflow, WorkflowExecution
+from src.service.alerting import send_failure_alert
 from src.service.plugin_manager import PluginManager
 from src.service.template import render_template
 
@@ -47,11 +49,21 @@ class WorkflowExecutor:
             status = "success"
             error_message = None
         except asyncio.TimeoutError:
-            logger.exception("Workflow execution timeout: workflow_id=%s execution_id=%s", workflow_id, execution.id)
+            logger.exception(
+                "Workflow execution timeout: workflow_id=%s execution_id=%s",
+                workflow_id,
+                execution.id,
+                extra={"workflow_id": str(workflow_id), "execution_id": str(execution.id)},
+            )
             status = "timeout"
             error_message = "Workflow execution timeout"
         except Exception as exc:
-            logger.exception("Workflow execution failed: workflow_id=%s execution_id=%s", workflow_id, execution.id)
+            logger.exception(
+                "Workflow execution failed: workflow_id=%s execution_id=%s",
+                workflow_id,
+                execution.id,
+                extra={"workflow_id": str(workflow_id), "execution_id": str(execution.id)},
+            )
             status = "failed"
             error_message = str(exc)
 
@@ -61,6 +73,16 @@ class WorkflowExecutor:
         execution.execution_time_ms = elapsed_ms
         execution.completed_at = datetime.now(timezone.utc)
         await execution.save()
+
+        if status in ("failed", "timeout"):
+            await send_failure_alert(
+                workflow_name=workflow.name,
+                workflow_id=str(workflow_id),
+                execution_id=str(execution.id),
+                status=status,
+                error_message=error_message or "",
+                execution_time_ms=elapsed_ms,
+            )
 
         return execution.id
 
@@ -120,6 +142,7 @@ class WorkflowExecutor:
                         attempt + 1,
                         self.MAX_RETRIES,
                         last_error,
+                        extra={"workflow_id": str(workflow.id), "execution_id": str(execution_id)},
                     )
 
                     if attempt < self.MAX_RETRIES - 1:

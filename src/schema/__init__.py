@@ -1,4 +1,5 @@
 """Pydantic Schema 定义"""
+
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from uuid import UUID
@@ -84,3 +85,24 @@ class ActionExecutionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class WorkflowFailureItem(BaseModel):
+    """失败排行项"""
+
+    workflow_id: UUID
+    workflow_name: str
+    failure_count: int
+
+
+class ExecutionStatsResponse(BaseModel):
+    """执行统计响应"""
+
+    total: int
+    success_count: int
+    failed_count: int
+    timeout_count: int
+    running_count: int
+    success_rate: float
+    avg_execution_time_ms: Optional[float]
+    failure_top5: List[WorkflowFailureItem]

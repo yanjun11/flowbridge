@@ -1,4 +1,5 @@
 """API 鉴权模块"""
+
 import secrets
 
 from fastapi import Header, HTTPException

@@ -1,4 +1,5 @@
 """飞书机器人通知动作"""
+
 import json
 import logging
 from typing import Any, Dict
